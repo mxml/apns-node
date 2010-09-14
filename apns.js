@@ -17,7 +17,7 @@ exports.createServer = function(pem_path, host, port) {
 
 APNS = function(options) {
   var self = this;
-  var pem = fs.readFileSync(options.pem_path);
+  var pem = fs.readFileSync(options.pem_path, 'ascii');
   
   var client = this.client = net.createConnection(options.port, options.host);
   this.waiting_buffers = [];
