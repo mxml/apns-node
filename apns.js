@@ -65,16 +65,17 @@ APNS = function(options) {
     });
 }
 
+sys.inherits(APNS, events.EventEmitter);
+
 
 APNS.prototype.end = function() {
     this.client.end();
 }
 
-sys.inherits(APNS, events.EventEmitter);
 
 
 APNSMessage = function() {
-
+    var self = this;
 }
 
 APNSMessage.prototype.hex_pack = function(str) {
@@ -104,6 +105,7 @@ APNSMessage.prototype.uint32_to_bytes = function(i) {
     return p;
 }
 
+
 PushMessage = function(identifier, expiry, device_id, obj) {
     APNSMessage.call(this);
 
@@ -114,6 +116,10 @@ PushMessage = function(identifier, expiry, device_id, obj) {
     self.device_id = device_id;
     self.obj = obj;
 }
+
+
+sys.inherits(PushMessage, APNSMessage);
+
 
 PushMessage.prototype.to_bytes = function() {
     var self = this;
@@ -134,12 +140,13 @@ PushMessage.prototype.to_bytes = function() {
     return buffer;
 }
 
-PushMessage.send = function(service) {
-    service.client.write(this.to_bytes());
+PushMessage.prototype.send = function(conn) {
+    conn.client.write(this.to_bytes());
 }
 
-
-sys.inherits(PushMessage, APNSMessage);
+exports.createMessage = function(identifier, expiry, device_id, obj) {
+    return new PushMessage(identifier, expiry, device_id, obj);
+}
 
 ErrorReply = function(buffer) {
     APNSMessage.call(this);
