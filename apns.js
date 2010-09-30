@@ -62,7 +62,7 @@ APNS = function(options) {
         // buffer message
         var p = [];
         for (var i = 0; i < data.length; i++) {
-            p.push(str.charCodeAt(i));
+            p.push(data.charCodeAt(i));
         }
         // emit error
         sys.puts('DATA! ' + p);
