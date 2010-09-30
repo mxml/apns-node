@@ -13,7 +13,7 @@ exports.createServer = function(pem_path, host, port) {
 
     var server = new APNS(options);
 
-    return server
+    return server;
 }
 
 APNS = function(options) {
@@ -60,8 +60,12 @@ APNS = function(options) {
 
     client.on('data', function(data) {
         // buffer message
+        var p = [];
+        for (var i = 0; i < data.length; i++) {
+            p.push(str.charCodeAt(i));
+        }
         // emit error
-        sys.puts('DATA! ' + self.ASCIIpack(data));
+        sys.puts('DATA! ' + p);
     });
 }
 
@@ -83,7 +87,7 @@ APNSMessage.prototype.hex_pack = function(str) {
     for (var i = 0; i < str.length; i = i + 2) {
         p.push(parseInt(str[i] + str[i + 1], 16));
     }
-    return p
+    return p;
 }
 
 APNSMessage.prototype.ascii_pack = function(str) {
