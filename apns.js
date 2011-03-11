@@ -1,9 +1,9 @@
 var sys = require('sys'),
 net = require('net'),
 fs = require('fs'),
-crypto = require('crypto'),
 Buffer = require('buffer').Buffer,
-events = require('events');
+events = require('events'),
+tls = require('tls');
 
 exports.createServer = function(pem_path, host, port) {
     var options = {};
@@ -21,27 +21,17 @@ APNS = function(options) {
     var self = this;
     var pem = fs.readFileSync(options.pem_path, 'ascii');
 
-    var client = this.client = net.createConnection(options.port, options.host);
-
-    var credentials = crypto.createCredentials({
+    var client = this.client = tls.connect(options.port, options.host, {
         ca: pem,
         key: pem,
         cert: pem
+    }, function() {
+        console.log('APNS: Secure.');
+        self.emit('connect');
     });
 
     client.setEncoding('utf8');
     client.setNoDelay(true);
-    client.setKeepAlive(true);
-
-    client.on('connect', function() {
-        sys.puts('APNS: Connected.');
-        client.setSecure(credentials);
-    });
-
-    client.on('secure', function() {
-        console.log('APNS: Secure.');
-        self.emit('connect');
-    });
 
     client.on('error', function(exception) {
         sys.puts('APNS: ' + exception.toString());
@@ -50,7 +40,6 @@ APNS = function(options) {
 
     client.on('end', function() {
         sys.puts('APNS: Disconnected.');
-        client.end();
         self.emit('end');
     });
 
@@ -145,7 +134,9 @@ PushMessage.prototype.to_bytes = function() {
 }
 
 PushMessage.prototype.send = function(conn) {
-    conn.client.write(this.to_bytes());
+    if (conn.client) {
+        conn.client.write(this.to_bytes());
+    }
 }
 
 exports.createMessage = function(identifier, expiry, device_id, obj) {
