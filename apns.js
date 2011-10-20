@@ -135,7 +135,12 @@ PushMessage.prototype.to_bytes = function() {
 
 PushMessage.prototype.send = function(conn) {
     if (conn.client) {
-        conn.client.write(this.to_bytes());
+        try {
+            conn.client.write(this.to_bytes());
+        }
+        catch (e) {
+            console.log('Writing socket threw error: ' + e);
+        }
     }
 }
 
